@@ -1,7 +1,6 @@
 {
   "domain": "emergencyapi",
   "name": "EmergencyAPI - Australian Emergency Data",
-  "version": "1.0.0",
   "codeowners": ["@JackDempsey9"],
   "config_flow": true,
   "dependencies": [],
@@ -9,5 +8,6 @@
   "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/JackDempsey9/homeassistant-emergencyapi/issues",
-  "requirements": []
+  "requirements": [],
+  "version": "1.0.0"
 }
