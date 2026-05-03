@@ -1,3 +1,4 @@
+import json
 import logging
 
 from homeassistant.components.geo_location import GeolocationEvent
@@ -12,6 +13,45 @@ from .coordinator import EmergencyAPICoordinator
 _LOGGER = logging.getLogger(__name__)
 
 SOURCE = "emergencyapi"
+
+
+def _extract_centroid(geometry: dict) -> tuple[float, float] | None:
+    """Extract a lat/lng centroid from any GeoJSON geometry type."""
+    geom_type = geometry.get("type", "")
+    coords = geometry.get("coordinates")
+    if not coords:
+        return None
+
+    if geom_type == "Point":
+        if len(coords) >= 2:
+            return (coords[1], coords[0])
+
+    if geom_type == "Polygon":
+        ring = coords[0] if coords else []
+        if ring:
+            lats = [c[1] for c in ring]
+            lngs = [c[0] for c in ring]
+            return (sum(lats) / len(lats), sum(lngs) / len(lngs))
+
+    if geom_type == "MultiPolygon":
+        all_lats = []
+        all_lngs = []
+        for polygon in coords:
+            ring = polygon[0] if polygon else []
+            for c in ring:
+                all_lats.append(c[1])
+                all_lngs.append(c[0])
+        if all_lats:
+            return (sum(all_lats) / len(all_lats), sum(all_lngs) / len(all_lngs))
+
+    if geom_type == "GeometryCollection":
+        geometries = geometry.get("geometries", [])
+        for g in geometries:
+            result = _extract_centroid(g)
+            if result:
+                return result
+
+    return None
 
 
 async def async_setup_entry(
@@ -83,10 +123,8 @@ class EmergencyAPIGeoLocation(CoordinatorEntity, GeolocationEvent):
         if feature is None:
             return None
         geom = feature.get("geometry", {})
-        coords = geom.get("coordinates", [])
-        if len(coords) >= 2:
-            return coords[1]
-        return None
+        centroid = _extract_centroid(geom)
+        return centroid[0] if centroid else None
 
     @property
     def longitude(self) -> float | None:
@@ -94,10 +132,8 @@ class EmergencyAPIGeoLocation(CoordinatorEntity, GeolocationEvent):
         if feature is None:
             return None
         geom = feature.get("geometry", {})
-        coords = geom.get("coordinates", [])
-        if len(coords) >= 2:
-            return coords[0]
-        return None
+        centroid = _extract_centroid(geom)
+        return centroid[1] if centroid else None
 
     @property
     def state(self) -> str | None:
@@ -126,7 +162,8 @@ class EmergencyAPIGeoLocation(CoordinatorEntity, GeolocationEvent):
             return {}
         props = feature.get("properties", {})
         source = props.get("source", {})
-        return {
+        geom = feature.get("geometry", {})
+        attrs = {
             ATTR_EVENT_TYPE: props.get("eventType"),
             ATTR_SEVERITY: props.get("severity"),
             ATTR_WARNING_LEVEL: props.get("warningLevel"),
@@ -134,3 +171,7 @@ class EmergencyAPIGeoLocation(CoordinatorEntity, GeolocationEvent):
             ATTR_SOURCE_STATE: source.get("state"),
             ATTR_SOURCE_AGENCY: source.get("agency"),
         }
+        if geom.get("type") in ("Polygon", "MultiPolygon", "GeometryCollection"):
+            attrs["geometry_type"] = geom.get("type")
+            attrs["geometry_json"] = json.dumps(geom)
+        return attrs
