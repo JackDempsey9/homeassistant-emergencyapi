@@ -100,6 +100,18 @@ class EmergencyAPIGeoLocation(CoordinatorEntity, GeolocationEvent):
         return None
 
     @property
+    def state(self) -> str | None:
+        feature = self._feature
+        if feature is None:
+            return None
+        props = feature.get("properties", {})
+        event_type = props.get("eventType", "")
+        status = props.get("status", "")
+        if event_type and status:
+            return f"{event_type.replace('_', ' ').title()} ({status})"
+        return event_type.replace("_", " ").title() or status or None
+
+    @property
     def distance(self) -> float | None:
         feature = self._feature
         if feature is None:
