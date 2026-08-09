@@ -1,15 +1,17 @@
 # EmergencyAPI for Home Assistant
 
-Real-time Australian emergency incident data from all 8 states and territories in your Home Assistant. Bushfires, floods, storms, cyclones, earthquakes, and more.
+**Last updated:** 2026-08-10
 
-Powered by [EmergencyAPI](https://emergencyapi.com) -- 27 government feeds, normalised into one API.
+Real-time Australian emergency incident data from every state and territory in your Home Assistant. Bushfires, floods, storms, cyclones, earthquakes, and more.
+
+Powered by [EmergencyAPI](https://emergencyapi.com) -- official government feeds, normalised into one API.
 
 ## What you get
 
 - **Map pins** for every active incident near your home (geo_location entities)
 - **Alert sensor** that turns ON when an emergency is within your configured radius (binary_sensor)
 - **Incident count** and **nearest emergency distance** sensors for dashboards
-- **All 8 states**: NSW, VIC, QLD, SA, WA, TAS, ACT, NT + national data
+- **Every state and territory**: NSW, VIC, QLD, SA, WA, TAS, ACT, NT + national data
 
 ## Installation
 
@@ -119,13 +121,18 @@ automation:
 ## FAQ
 
 **How much does it cost?**
-Free. EmergencyAPI has a free tier with 500 API calls per day. The integration uses ~288 calls/day at the default 5-minute interval.
+Nothing, on the default settings. EmergencyAPI's free tier allows 5,000 API calls per calendar month, resetting on the 1st (UTC). At the default 10-minute interval the integration uses 144 calls a day, about 4,464 a month, which stays inside the free tier.
+
+Shorter intervals do not fit. At 5 minutes it uses 288 calls a day, about 8,928 a month, which runs out of allowance around the middle of the month. If you want to poll faster than 10 minutes, that is what the paid tiers are for (Starter A$9 for 50,000 a month, Developer A$29 for 150,000).
 
 **What data sources does this use?**
-27 official government feeds including CFS, RFS, CFA, DFES, TFS, QFES, ACT ESA, NT PFES, BOM, Geoscience Australia, and DEA satellite hotspots. Full list at [emergencyapi.com/api/v1/attribution](https://emergencyapi.com/api/v1/attribution).
+Official government feeds including CFS, RFS, CFA, DFES, TFS, QFES, ACT ESA, NT PFES, BOM, Geoscience Australia, and DEA satellite hotspots. Full list at [emergencyapi.com/api/v1/attribution](https://emergencyapi.com/api/v1/attribution).
 
 **How often does it update?**
-Every 5 minutes by default. Configurable from 2 to 60 minutes during setup.
+Every 10 minutes by default. Configurable from 2 to 60 minutes, either during setup or afterwards from the integration's Configure option.
+
+**I installed this before v1.0.2 and my key hit the monthly cap. What happened?**
+Versions before 1.0.2 defaulted to a 5-minute interval, which does not fit the free tier. That default was our mistake. Updating to 1.0.2 or later moves any install polling faster than 10 minutes up to 10 automatically, so the fix is just to update. Your allowance resets on the 1st of each month either way.
 
 **Does it work outside Australia?**
 No. EmergencyAPI covers Australian emergencies only.
