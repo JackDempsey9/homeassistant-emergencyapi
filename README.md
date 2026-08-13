@@ -1,10 +1,12 @@
-# EmergencyAPI for Home Assistant
+# DataQuoll for Home Assistant
 
-**Last updated:** 2026-08-10
+**Last updated:** 2026-08-14
+
+**DataQuoll (formerly EmergencyAPI)** -- same integration, same API key, same entities; only the name and the web address have changed.
 
 Real-time Australian emergency incident data from every state and territory in your Home Assistant. Bushfires, floods, storms, cyclones, earthquakes, and more.
 
-Powered by [EmergencyAPI](https://emergencyapi.com) -- official government feeds, normalised into one API.
+Powered by [DataQuoll](https://dataquoll.io) -- official government feeds, normalised into one API.
 
 ## What you get
 
@@ -18,7 +20,7 @@ Powered by [EmergencyAPI](https://emergencyapi.com) -- official government feeds
 ### HACS (recommended)
 
 1. Open HACS in your Home Assistant
-2. Search for "EmergencyAPI"
+2. Search for "DataQuoll"
 3. Click Install
 4. Restart Home Assistant
 
@@ -30,8 +32,8 @@ Powered by [EmergencyAPI](https://emergencyapi.com) -- official government feeds
 
 ## Setup
 
-1. Get a **free API key** at [emergencyapi.com/signup](https://emergencyapi.com/signup) (no credit card)
-2. In Home Assistant: Settings > Devices & Services > Add Integration > Search "EmergencyAPI"
+1. Get a **free API key** at [dataquoll.io/signup](https://dataquoll.io/signup) (no credit card)
+2. In Home Assistant: Settings > Devices & Services > Add Integration > Search "DataQuoll"
 3. Enter your API key and set your monitoring radius (default: 50 km)
 
 ## Entities
@@ -42,6 +44,8 @@ Powered by [EmergencyAPI](https://emergencyapi.com) -- official government feeds
 | `binary_sensor.emergencyapi_alert` | Binary Sensor | ON when any incident exists within your radius. OFF when clear. |
 | `sensor.emergencyapi_incidents` | Sensor | Count of active incidents within your radius. |
 | `sensor.emergencyapi_nearest` | Sensor | Distance to the nearest emergency (km). |
+
+Entity IDs keep the `emergencyapi` prefix from earlier versions on purpose, so existing automations keep working.
 
 ## Example automations
 
@@ -120,13 +124,16 @@ automation:
 
 ## FAQ
 
+**Why did the name change?**
+EmergencyAPI is now DataQuoll. Nothing else changed: your API key, the entities, and your automations all keep working. Entity IDs keep the `emergencyapi` prefix so nothing breaks.
+
 **How much does it cost?**
-Nothing, on the default settings. EmergencyAPI's free tier allows 5,000 API calls per calendar month, resetting on the 1st (UTC). At the default 10-minute interval the integration uses 144 calls a day, about 4,464 a month, which stays inside the free tier.
+Nothing, on the default settings. DataQuoll's free tier allows 5,000 API calls per calendar month, resetting on the 1st (UTC). At the default 10-minute interval the integration uses 144 calls a day, about 4,464 a month, which stays inside the free tier.
 
 Shorter intervals do not fit. At 5 minutes it uses 288 calls a day, about 8,928 a month, which runs out of allowance around the middle of the month. If you want to poll faster than 10 minutes, that is what the paid tiers are for (Starter A$9 for 50,000 a month, Developer A$29 for 150,000).
 
 **What data sources does this use?**
-Official government feeds including CFS, RFS, CFA, DFES, TFS, QFES, ACT ESA, NT PFES, BOM, Geoscience Australia, and DEA satellite hotspots. Full list at [emergencyapi.com/api/v1/attribution](https://emergencyapi.com/api/v1/attribution).
+Official government feeds including CFS, RFS, CFA, DFES, TFS, QFES, ACT ESA, NT PFES, BOM, Geoscience Australia, and DEA satellite hotspots. Full list at [dataquoll.io/api/v1/attribution](https://dataquoll.io/api/v1/attribution).
 
 **How often does it update?**
 Every 10 minutes by default. Configurable from 2 to 60 minutes, either during setup or afterwards from the integration's Configure option.
@@ -135,15 +142,15 @@ Every 10 minutes by default. Configurable from 2 to 60 minutes, either during se
 Versions before 1.0.2 defaulted to a 5-minute interval, which does not fit the free tier. That default was our mistake. Updating to 1.0.2 or later moves any install polling faster than 10 minutes up to 10 automatically, so the fix is just to update. Your allowance resets on the 1st of each month either way.
 
 **Does it work outside Australia?**
-No. EmergencyAPI covers Australian emergencies only.
+No. DataQuoll covers Australian emergencies only.
 
 ## Data attribution
 
-Emergency data is sourced from Australian government agencies under various Creative Commons licences. Full attribution details at [emergencyapi.com/attribution](https://emergencyapi.com/attribution).
+Emergency data is sourced from Australian government agencies under various Creative Commons licences. Full attribution details at [dataquoll.io/attribution](https://dataquoll.io/attribution).
 
 ## Links
 
-- [EmergencyAPI](https://emergencyapi.com)
-- [API Documentation](https://emergencyapi.com/docs)
-- [Get a free API key](https://emergencyapi.com/signup)
+- [DataQuoll](https://dataquoll.io)
+- [API Documentation](https://dataquoll.io/docs)
+- [Get a free API key](https://dataquoll.io/signup)
 - [Report an issue](https://github.com/JackDempsey9/homeassistant-emergencyapi/issues)
