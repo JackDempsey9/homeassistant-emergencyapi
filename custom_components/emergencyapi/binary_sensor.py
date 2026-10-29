@@ -8,6 +8,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import ATTR_INCIDENT_COUNT, ATTR_MAX_SEVERITY, ATTR_MAX_WARNING_LEVEL, ATTR_NEAREST_DISTANCE, DOMAIN, SEVERITY_ORDER
 from .coordinator import EmergencyAPICoordinator
+from .levels import max_warning_level
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -49,9 +50,8 @@ class EmergencyAPIAlertSensor(CoordinatorEntity, BinarySensorEntity):
         severities = [f.get("properties", {}).get("severity", "Unknown") for f in incidents]
         max_sev = max(severities, key=lambda s: SEVERITY_ORDER.get(s, 0))
 
-        warnings = [f.get("properties", {}).get("warningLevel", "none") for f in incidents]
-        warning_priority = {"emergency_warning": 3, "watch_and_act": 2, "advice": 1, "none": 0}
-        max_warn = max(warnings, key=lambda w: warning_priority.get(w, 0))
+        # Over the levels DataQuoll publishes; a missing level is unknown, never "none" (levels.py).
+        max_warn = max_warning_level(incidents)
 
         distances = [f.get("properties", {}).get("distance") for f in incidents]
         valid_distances = [d for d in distances if d is not None]

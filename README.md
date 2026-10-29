@@ -40,7 +40,7 @@ Powered by [DataQuoll](https://dataquoll.io) -- official government feeds, norma
 
 | Entity | Type | What it shows |
 |--------|------|---------------|
-| `geo_location.emergencyapi_*` | Geo Location | Each incident as a pin on the HA map. Shows distance, title, severity. |
+| `geo_location.emergencyapi_*` | Geo Location | Each incident as a pin on the HA map. Shows distance, title, warning level. |
 | `binary_sensor.emergencyapi_alert` | Binary Sensor | ON when any incident exists within your radius. OFF when clear. |
 | `sensor.emergencyapi_incidents` | Sensor | Count of active incidents within your radius. |
 | `sensor.emergencyapi_nearest` | Sensor | Distance to the nearest emergency (km). |
@@ -65,7 +65,7 @@ automation:
           message: >
             {{ state_attr('sensor.emergencyapi_nearest', 'title') }}
             is {{ states('sensor.emergencyapi_nearest') }} km away.
-            Severity: {{ state_attr('sensor.emergencyapi_nearest', 'severity') }}
+            Warning level: {{ state_attr('sensor.emergencyapi_nearest', 'warning_level') or 'not given' }}
 ```
 
 ### Turn on a red light during emergencies
@@ -111,8 +111,8 @@ automation:
     condition:
       - condition: state
         entity_id: sensor.emergencyapi_nearest
-        attribute: severity
-        state: "Extreme"
+        attribute: warning_level
+        state: "emergency_warning"
     action:
       - service: tts.google_translate_say
         data:
@@ -123,6 +123,9 @@ automation:
 ```
 
 ## FAQ
+
+**Why is severity Unknown?**
+Since DataQuoll v1.105.0 (October 2026), `severity`, `urgency` and `certainty` carry only what the agency states, and most agencies state none, so they read `Unknown`. Use the warning level (`warning_level` on the nearest sensor, `max_warning_level` on the alert sensor): it is the Australian Warning System level the agency states. Where DataQuoll cannot tell an agency's level from one it derived, it leaves the level out, never shown as none: the nearest sensor's `warning_level` is then empty, and from v1.0.4 `max_warning_level` is empty (unknown) unless a confirmed Emergency Warning is nearby.
 
 **Why did the name change?**
 EmergencyAPI is now DataQuoll. Nothing else changed: your API key, the entities, and your automations all keep working. Entity IDs keep the `emergencyapi` prefix so nothing breaks.
